@@ -2,7 +2,7 @@
 open FSharpPlus
 
 let containers =
-    [
+    [|
         33
         14
         18
@@ -23,20 +23,22 @@ let containers =
         41
         30
         42
-    ] |> List.indexed |> Set
+    |]
+    
+let indexes = Set [0..containers.Length - 1]
 
 let rec fill =
     fun empty n -> 
         [
-            for container in empty do
-                let i, c = container
+            for i in empty do
+                let c = containers[i]
                 if n >= c then
-                    yield! fill (empty |> Set.remove container) (n - c)
+                    yield! fill (empty |> Set.remove i) (n - c)
                 if n = c then
-                    yield containers - (empty.Remove container)
+                    yield indexes - (empty.Remove i)
         ]
     |> memoizeN
 
-let result = fill containers 150 |> List.distinct |> List.groupBy Set.count
+let result = fill indexes 150 |> List.distinct |> List.groupBy Set.count
 
 result |> List.minBy fst |> snd |> List.length
