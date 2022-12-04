@@ -34,12 +34,12 @@ let rec fill =
                 if not (filled |> Set.contains i) then
                     let c = containers[i]
                     if n >= c then
-                        yield! fill (filled.Add i) (n - c) |> distinct
+                        yield! fill (filled.Add i) (n - c)
                     if n = c then
                         yield filled.Add i
-        ]
+        ] |> distinct
     |> memoizeN
 
-let result = fill Set.empty 150 |> distinct |> groupBy length
+let result = fill Set.empty 150 |> groupBy length
 
 result |> minBy fst |> snd |> length
