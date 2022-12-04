@@ -25,20 +25,21 @@ let containers =
         42
     |]
     
-let indexes = Set [0..containers.Length - 1]
+let indexes = [0..containers.Length - 1] |> sortByDescending (fun i -> containers[i])
 
 let rec fill =
-    fun empty n -> 
+    fun filled n -> 
         [
-            for i in empty do
-                let c = containers[i]
-                if n >= c then
-                    yield! fill (empty |> Set.remove i) (n - c)
-                if n = c then
-                    yield indexes - (empty.Remove i)
+            for i in indexes do
+                if not (filled |> Set.contains i) then
+                    let c = containers[i]
+                    if n >= c then
+                        yield! fill (filled.Add i) (n - c) |> distinct
+                    if n = c then
+                        yield filled.Add i
         ]
     |> memoizeN
 
-let result = fill indexes 150 |> List.distinct |> List.groupBy Set.count
+let result = fill Set.empty 150 |> distinct |> groupBy length
 
-result |> List.minBy fst |> snd |> List.length
+result |> minBy fst |> snd |> length
